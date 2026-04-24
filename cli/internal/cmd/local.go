@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"codeberg.org/gadonias/vimgolf/cli/internal/challenge"
-	"codeberg.org/gadonias/vimgolf/cli/internal/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -28,8 +27,7 @@ func runLocal(infile, outfile string) error {
 	for _, f := range []string{infile, outfile} {
 		info, err := os.Stat(f)
 		if err != nil || info.IsDir() {
-			ui.Error(fmt.Sprintf("INFILE and OUTFILE must exist and be regular files."))
-			os.Exit(1)
+			return fmt.Errorf("%s must exist and be a regular file", f)
 		}
 	}
 

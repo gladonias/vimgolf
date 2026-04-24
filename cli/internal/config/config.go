@@ -70,7 +70,7 @@ func Save(cfg *Config) error {
 	return os.WriteFile(filepath.Join(Dir(), configFile), data, 0o644)
 }
 
-var keyPattern = regexp.MustCompile(`^[a-zA-Z0-9]{32}$`)
+var keyPattern = regexp.MustCompile(`^[a-zA-Z0-9_]{32}$`)
 
 func ValidateKey(key string) bool {
 	return keyPattern.MatchString(key)

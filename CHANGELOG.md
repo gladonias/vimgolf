@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.1] - 2026-04-24
+
+### Fixed
+- Validate server's `client` version field on challenge download to prevent playing incompatible challenges.
+- Accept underscores in API keys to match Ruby client's validation (`\w` includes `_`).
+- Parse JSON response body on upload and check `status` field instead of relying on HTTP status code alone.
+- Use multipart form encoding for upload to preserve binary keylog data (bytes >0x80 were corrupted by URL encoding).
+- Return an error on invalid key during `vimgolf setup` instead of silently succeeding.
+- Replace `os.Exit(1)` in `vimgolf local` with proper error return so deferred cleanup runs.
+- Add 30-second HTTP timeout to all network requests (challenge download, upload, leaderboard).
+
 ## [0.1.0] - 2026-04-24
 
 ### Added

@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"codeberg.org/gadonias/vimgolf/cli/internal/config"
 	"codeberg.org/gadonias/vimgolf/cli/internal/ui"
 	"github.com/spf13/cobra"
@@ -33,8 +35,7 @@ func runSetup() error {
 	}
 
 	if !config.ValidateKey(key) {
-		ui.Error("Invalid key, please double check your key on vimgolf.com")
-		return nil
+		return fmt.Errorf("invalid key, please double check your key on vimgolf.com")
 	}
 
 	username, err := ui.Ask("Your vimgolf.com username (for leaderboard, optional):")

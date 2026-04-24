@@ -10,10 +10,15 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	"codeberg.org/gadonias/vimgolf/cli/internal/config"
 	"codeberg.org/gadonias/vimgolf/cli/internal/ui"
 )
+
+const ClientVersion = "0.5.0"
+
+var httpClient = &http.Client{Timeout: 30 * time.Second}
 
 //go:embed vimgolf.vimrc
 var embeddedVimrc []byte
@@ -56,7 +61,7 @@ func (c *Challenge) Download() error {
 	url := fmt.Sprintf("%s/challenges/%s.json", config.Host(), c.ID)
 	ui.Debug(fmt.Sprintf("GET %s", url))
 
-	resp, err := http.Get(url)
+	resp, err := httpClient.Get(url)
 	if err != nil {
 		return fmt.Errorf("failed to download challenge: %w", err)
 	}
@@ -74,6 +79,10 @@ func (c *Challenge) Download() error {
 	var data challengeJSON
 	if err := json.Unmarshal(body, &data); err != nil {
 		return fmt.Errorf("failed to parse challenge JSON: %w", err)
+	}
+
+	if data.Client != "" && data.Client != ClientVersion {
+		return fmt.Errorf("client version mismatch — installed: %s, required: %s", ClientVersion, data.Client)
 	}
 
 	data.In.Data = strings.ReplaceAll(data.In.Data, "\r\n", "\n")

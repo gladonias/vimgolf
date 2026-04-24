@@ -1,16 +1,22 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
-	"net/url"
 	"os"
+	"time"
 
 	"codeberg.org/gadonias/vimgolf/cli/internal/challenge"
 	"codeberg.org/gadonias/vimgolf/cli/internal/config"
 	"codeberg.org/gadonias/vimgolf/cli/internal/keylog"
 	"codeberg.org/gadonias/vimgolf/cli/internal/ui"
 )
+
+var uploadClient = &http.Client{Timeout: 30 * time.Second}
 
 func play(ch *challenge.Challenge) error {
 	for {
@@ -167,21 +173,50 @@ func upload(ch *challenge.Challenge) bool {
 		return false
 	}
 
-	form := url.Values{
-		"challenge_id": {ch.ID},
-		"apikey":       {cfg.Key},
-		"entry":        {string(logData)},
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	writer.WriteField("challenge_id", ch.ID)
+	writer.WriteField("apikey", cfg.Key)
+
+	part, err := writer.CreateFormField("entry")
+	if err != nil {
+		ui.Error(fmt.Sprintf("Upload failed: %v", err))
+		return false
 	}
+	part.Write(logData)
+	writer.Close()
 
 	uploadURL := fmt.Sprintf("%s/entry.json", config.Host())
-	resp, err := http.PostForm(uploadURL, form)
+	req, err := http.NewRequest("POST", uploadURL, &body)
+	if err != nil {
+		ui.Error(fmt.Sprintf("Upload failed: %v", err))
+		return false
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := uploadClient.Do(req)
 	if err != nil {
 		ui.Error(fmt.Sprintf("Upload failed: %v", err))
 		return false
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusOK {
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		ui.Error(fmt.Sprintf("Failed to read server response: %v", err))
+		return false
+	}
+
+	var result struct {
+		Status string `json:"status"`
+	}
+	if err := json.Unmarshal(respBody, &result); err != nil {
+		ui.Error(fmt.Sprintf("Failed to parse server response: %v", err))
+		return false
+	}
+
+	if result.Status == "ok" {
 		ui.Warn("Uploaded entry.")
 		ui.Warn(fmt.Sprintf("View the leaderboard: %s/challenges/%s", config.Host(), ch.ID))
 		return true

@@ -7,9 +7,12 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"codeberg.org/gadonias/vimgolf/cli/internal/config"
 )
+
+var httpClient = &http.Client{Timeout: 30 * time.Second}
 
 type Entry struct {
 	Rank     int
@@ -54,7 +57,7 @@ func Fetch(challengeID string, username string) (*Result, error) {
 	}
 	req.Header.Set("Accept", "text/html")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch leaderboard: %w", err)
 	}
@@ -125,7 +128,7 @@ func fetchUserEntry(challengeID, username string) (*Entry, error) {
 	}
 	req.Header.Set("Accept", "text/html")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

@@ -11,6 +11,7 @@ When you launch a challenge from the command line, it will be downloaded from th
 ## Go CLI (recommended)
 
 The Go CLI is a single static binary with no runtime dependencies.
+It is fully compatible with the vimgolf.com server (protocol version 0.5.0).
 
 ### Install
 
