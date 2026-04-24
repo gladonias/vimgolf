@@ -8,6 +8,7 @@ import (
 
 	"codeberg.org/gadonias/vimgolf/cli/internal/challenge"
 	"codeberg.org/gadonias/vimgolf/cli/internal/config"
+	"codeberg.org/gadonias/vimgolf/cli/internal/keylog"
 	"codeberg.org/gadonias/vimgolf/cli/internal/ui"
 )
 
@@ -30,10 +31,13 @@ func play(ch *challenge.Challenge) error {
 			return fmt.Errorf("failed to read keylog: %w", err)
 		}
 
-		score := countKeystrokes(logData)
+		strokes := keylog.Parse(logData)
+		score := len(strokes)
 
 		ui.Info("\nHere are your keystrokes:")
-		printKeystrokes(logData)
+		for _, s := range strokes {
+			ui.PrintKeystroke(s.Display)
+		}
 		fmt.Println()
 
 		correct, err := ch.Correct()
@@ -187,46 +191,3 @@ func upload(ch *challenge.Challenge) bool {
 	return false
 }
 
-// Placeholder keystroke counting — counts raw bytes as keystrokes.
-// The full keylog parser (Stage 3) will replace this with proper
-// multi-byte Vim keycode handling.
-func countKeystrokes(data []byte) int {
-	count := 0
-	i := 0
-	for i < len(data) {
-		if data[i] == 0x80 && i+2 < len(data) {
-			i += 3
-		} else {
-			i++
-		}
-		count++
-	}
-	return count
-}
-
-func printKeystrokes(data []byte) {
-	i := 0
-	for i < len(data) {
-		if data[i] == 0x80 && i+2 < len(data) {
-			ui.PrintKeystroke(fmt.Sprintf("<0x%02x%02x>", data[i+1], data[i+2]))
-			i += 3
-		} else {
-			b := data[i]
-			switch {
-			case b == 0x1b:
-				ui.PrintKeystroke("<Esc>")
-			case b == 0x0d:
-				ui.PrintKeystroke("<CR>")
-			case b == 0x0a:
-				ui.PrintKeystroke("<NL>")
-			case b == 0x09:
-				ui.PrintKeystroke("<Tab>")
-			case b >= 32 && b <= 126:
-				fmt.Print(string(b))
-			default:
-				ui.PrintKeystroke(fmt.Sprintf("<C-%c>", b^0x40))
-			}
-			i++
-		}
-	}
-}
