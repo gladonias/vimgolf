@@ -37,7 +37,12 @@ func runSetup() error {
 		return nil
 	}
 
-	if err := config.Save(&config.Config{Key: key}); err != nil {
+	username, err := ui.Ask("Your vimgolf.com username (for leaderboard, optional):")
+	if err != nil {
+		return err
+	}
+
+	if err := config.Save(&config.Config{Key: key, Username: username}); err != nil {
 		return err
 	}
 

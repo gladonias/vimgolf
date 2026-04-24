@@ -16,7 +16,8 @@ const (
 )
 
 type Config struct {
-	Key string `yaml:"key"`
+	Key      string `yaml:"key"`
+	Username string `yaml:"username,omitempty"`
 }
 
 func Dir() string {
