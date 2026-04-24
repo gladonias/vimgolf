@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.3] - 2026-04-24
+
+### Added
+- `--version` flag on the root command (`vimgolf --version`).
+- Tests for `fetchUserEntry` fallback path and user-not-found case (26 tests total).
+
+### Fixed
+- Upload-and-quit (`[x]`) now loops back to the prompt if upload fails, matching Ruby behavior.
+- Show diff (`[d]`) reports errors to the user instead of silently ignoring them.
+
 ## [0.1.2] - 2026-04-24
 
 ### Added

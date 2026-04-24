@@ -121,6 +121,60 @@ func TestFetch404(t *testing.T) {
 	}
 }
 
+func TestFetchUserEntryFallback(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/challenges/abc", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(sampleHTML))
+	})
+	mux.HandleFunc("/challenges/abc/user/dave", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`<html><b>Best score:</b> 25<br/><b>Rank:</b> #42</html>`))
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+
+	os.Setenv("GOLFHOST", server.URL)
+	defer os.Unsetenv("GOLFHOST")
+
+	result, err := Fetch("abc", "dave")
+	if err != nil {
+		t.Fatalf("Fetch() error: %v", err)
+	}
+
+	if result.UserEntry == nil {
+		t.Fatal("expected UserEntry to be set for dave via fallback")
+	}
+	if result.UserEntry.Score != 25 {
+		t.Errorf("user score = %d, want 25", result.UserEntry.Score)
+	}
+	if result.UserEntry.Rank != 42 {
+		t.Errorf("user rank = %d, want 42", result.UserEntry.Rank)
+	}
+}
+
+func TestFetchUserEntryNotFound(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/challenges/abc", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(sampleHTML))
+	})
+	mux.HandleFunc("/challenges/abc/user/nobody", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+
+	os.Setenv("GOLFHOST", server.URL)
+	defer os.Unsetenv("GOLFHOST")
+
+	result, err := Fetch("abc", "nobody")
+	if err != nil {
+		t.Fatalf("Fetch() error: %v", err)
+	}
+
+	if result.UserEntry != nil {
+		t.Error("expected UserEntry to be nil for unknown user")
+	}
+}
+
 func TestFetchEmptyLeaderboard(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("<html><h3><b>Empty Challenge</b></h3></html>"))

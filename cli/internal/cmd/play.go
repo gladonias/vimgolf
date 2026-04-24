@@ -94,7 +94,9 @@ func promptFailedAttempt(ch *challenge.Challenge) (string, error) {
 		switch choice {
 		case "d":
 			ui.Warn("Showing vimdiff of your attempt (left) and correct output (right)")
-			ch.ShowDiff()
+			if err := ch.ShowDiff(); err != nil {
+				ui.Error(fmt.Sprintf("Failed to show diff: %v", err))
+			}
 		case "r":
 			ui.Warn("Retrying current challenge...")
 			return "retry", nil
@@ -143,8 +145,9 @@ func promptSuccess(ch *challenge.Challenge) (string, error) {
 			}
 		case "x":
 			if canUpload {
-				upload(ch)
-				return "quit", nil
+				if upload(ch) {
+					return "quit", nil
+				}
 			}
 		case "s":
 			if err := runSetup(); err != nil {

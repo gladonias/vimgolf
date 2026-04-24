@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
@@ -11,6 +13,7 @@ var rootCmd = &cobra.Command{
 
 Download challenges from vimgolf.com, edit the input file to match
 the output using Vim, and compete for the fewest keystrokes.`,
+	Version: fmt.Sprintf("%s (Go)", Version),
 }
 
 func Execute() error {
