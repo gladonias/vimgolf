@@ -26,6 +26,10 @@ func init() {
 }
 
 func runLeaderboard(challengeID string) error {
+	if strings.TrimSpace(challengeID) == "" {
+		return fmt.Errorf("challenge ID cannot be empty")
+	}
+
 	ui.Warn(fmt.Sprintf("Fetching leaderboard for challenge: %s", challengeID))
 
 	var username string

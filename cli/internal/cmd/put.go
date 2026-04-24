@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"codeberg.org/gadonias/vimgolf/cli/internal/challenge"
 	"codeberg.org/gadonias/vimgolf/cli/internal/config"
@@ -25,6 +26,10 @@ func init() {
 }
 
 func runPut(id string) error {
+	if strings.TrimSpace(id) == "" {
+		return fmt.Errorf("challenge ID cannot be empty")
+	}
+
 	putDir := config.PutDir()
 	if err := os.MkdirAll(putDir, 0o755); err != nil {
 		return fmt.Errorf("failed to create put directory: %w", err)

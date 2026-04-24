@@ -67,13 +67,20 @@ func (c *Challenge) Download() error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("server returned %d for challenge %s", resp.StatusCode, c.ID)
-	}
-
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("failed to read response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		detail := strings.TrimSpace(string(body))
+		if len(detail) > 200 {
+			detail = detail[:200]
+		}
+		if detail != "" {
+			return fmt.Errorf("server returned %d for challenge %s: %s", resp.StatusCode, c.ID, detail)
+		}
+		return fmt.Errorf("server returned %d for challenge %s", resp.StatusCode, c.ID)
 	}
 
 	var data challengeJSON
@@ -186,13 +193,11 @@ func (c *Challenge) Correct() (bool, error) {
 }
 
 func (c *Challenge) Cleanup() {
-	if c.WorkPath != "" {
-		os.Remove(c.WorkPath)
-	}
-	if c.LogPath != "" {
-		os.Remove(c.LogPath)
-	}
-	if c.VimrcPath != "" {
-		os.Remove(c.VimrcPath)
+	for _, path := range []string{c.WorkPath, c.LogPath, c.VimrcPath} {
+		if path != "" {
+			if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+				ui.Debug(fmt.Sprintf("failed to remove temp file %s: %v", path, err))
+			}
+		}
 	}
 }

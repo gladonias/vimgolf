@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.2] - 2026-04-24
+
+### Added
+- Test suites for config, challenge, leaderboard, and UI packages (24 tests total).
+- Challenge ID validation in `put` and `leaderboard` commands.
+
+### Fixed
+- Leaderboard parser uses a single unified regex per entry instead of two separate lists that could desync.
+- `AskChoice` extracts valid letters dynamically from the `[x]` prefix in choices instead of a hardcoded set.
+- Download errors now include the server response body (truncated to 200 chars) for better diagnostics.
+- Temp file cleanup logs a debug warning on failure instead of silently ignoring errors.
+
+### Changed
+- Set `go.mod` minimum Go version to 1.21 (was incorrectly set to a future version).
+
 ## [0.1.1] - 2026-04-24
 
 ### Fixed

@@ -45,6 +45,13 @@ func Ask(prompt string) (string, error) {
 }
 
 func AskChoice(prompt string, choices []string) (string, error) {
+	valid := make(map[string]bool)
+	for _, c := range choices {
+		if len(c) >= 3 && c[0] == '[' && c[2] == ']' {
+			valid[strings.ToLower(string(c[1]))] = true
+		}
+	}
+
 	for {
 		for _, c := range choices {
 			Warn(c)
@@ -54,12 +61,7 @@ func AskChoice(prompt string, choices []string) (string, error) {
 			return "", err
 		}
 		answer = strings.ToLower(strings.TrimSpace(answer))
-		for _, c := range choices {
-			if len(c) > 4 && strings.ToLower(string(c[1])) == answer {
-				return answer, nil
-			}
-		}
-		if answer == "q" || answer == "r" || answer == "d" || answer == "w" || answer == "x" || answer == "s" {
+		if valid[answer] {
 			return answer, nil
 		}
 		fmt.Println("Invalid choice, try again.")

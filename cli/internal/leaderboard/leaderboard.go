@@ -34,11 +34,10 @@ type Result struct {
 }
 
 var (
+	// Captures score + rank + name + username as a single unit per entry.
+	// Score appears in the div before the h6 with rank/name/username.
 	entryRe = regexp.MustCompile(
-		`<b>#(\d+)</b></a>\s*-\s*(.+?)\s*/\s*<a href="[^"]*">@(\w+)`,
-	)
-	scoreRe = regexp.MustCompile(
-		`font-size:2\.4em"><b><a[^>]*>(\d+)</a>`,
+		`(?s)font-size:2\.4em"><b><a[^>]*>(\d+)</a>.*?<b>#(\d+)</b></a>\s*-\s*(.+?)\s*/\s*<a href="[^"]*">@(\w+)`,
 	)
 	statsRe = regexp.MustCompile(
 		`<b class="stat">(\d+)</b>`,
@@ -86,19 +85,15 @@ func Fetch(challengeID string, username string) (*Result, error) {
 	}
 
 	entryMatches := entryRe.FindAllStringSubmatch(html, -1)
-	scoreMatches := scoreRe.FindAllStringSubmatch(html, -1)
 
-	for i, m := range entryMatches {
-		rank, _ := strconv.Atoi(m[1])
-		score := 0
-		if i < len(scoreMatches) {
-			score, _ = strconv.Atoi(scoreMatches[i][1])
-		}
+	for _, m := range entryMatches {
+		score, _ := strconv.Atoi(m[1])
+		rank, _ := strconv.Atoi(m[2])
 
 		entry := Entry{
 			Rank:     rank,
-			Name:     strings.TrimSpace(m[2]),
-			Username: m[3],
+			Name:     strings.TrimSpace(m[3]),
+			Username: m[4],
 			Score:    score,
 		}
 		result.Top = append(result.Top, entry)
