@@ -78,19 +78,33 @@ func FetchAll(minEntries int) ([]Challenge, error) {
 		return nil, err
 	}
 
-	var all []Challenge
-	for _, c := range first {
-		if c.Entries >= minEntries {
-			all = append(all, c)
-		}
+	type pageResult struct {
+		page       int
+		challenges []Challenge
+		err        error
 	}
 
+	ch := make(chan pageResult, totalPages)
 	for page := 2; page <= totalPages; page++ {
-		challenges, _, err := FetchPage(page)
-		if err != nil {
-			return nil, err
+		go func(p int) {
+			challenges, _, err := FetchPage(p)
+			ch <- pageResult{page: p, challenges: challenges, err: err}
+		}(page)
+	}
+
+	results := make([][]Challenge, totalPages+1)
+	results[1] = first
+	for range totalPages - 1 {
+		r := <-ch
+		if r.err != nil {
+			return nil, r.err
 		}
-		for _, c := range challenges {
+		results[r.page] = r.challenges
+	}
+
+	var all []Challenge
+	for _, page := range results {
+		for _, c := range page {
 			if c.Entries >= minEntries {
 				all = append(all, c)
 			}
