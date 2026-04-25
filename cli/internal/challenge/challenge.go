@@ -105,10 +105,13 @@ func (c *Challenge) Download() error {
 		return fmt.Errorf("failed to write input file: %w", err)
 	}
 	if err := os.WriteFile(c.OutputPath, []byte(data.Out.Data+"\n"), 0o644); err != nil {
+		os.Remove(c.InputPath)
 		return fmt.Errorf("failed to write output file: %w", err)
 	}
 
 	if err := c.setupWorkFiles(inType); err != nil {
+		os.Remove(c.InputPath)
+		os.Remove(c.OutputPath)
 		return err
 	}
 
