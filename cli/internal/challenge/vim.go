@@ -8,14 +8,14 @@ import (
 )
 
 func vimBinary() string {
-	if v := os.Getenv("GOLFVIM"); v != "" {
+	if v := strings.TrimSpace(os.Getenv("GOLFVIM")); v != "" {
 		return v
 	}
 	return "vim"
 }
 
 func diffCommand() string {
-	if d := os.Getenv("GOLFSHOWDIFF"); d != "" {
+	if d := strings.TrimSpace(os.Getenv("GOLFSHOWDIFF")); d != "" {
 		return d
 	}
 	return "vim -d -n"

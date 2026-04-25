@@ -52,7 +52,7 @@ func play(ch *challenge.Challenge) error {
 		}
 
 		if !correct {
-			ui.Error(fmt.Sprintf("\nUh oh, looks like your entry does not match the desired output."))
+			ui.Error("\nUh oh, looks like your entry does not match the desired output.")
 			ui.Error(fmt.Sprintf("Your score for this failed attempt was: %d", score))
 
 			action, err := promptFailedAttempt(ch)

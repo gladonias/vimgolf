@@ -45,6 +45,7 @@ func runNext() error {
 			return advanceNext(state.ChallengeID)
 		}
 
+		// Top[0] is rank #1 (lowest score). Beaten means user matched it.
 		beaten := len(result.Top) > 0 && result.UserEntry != nil &&
 			result.UserEntry.Score <= result.Top[0].Score
 

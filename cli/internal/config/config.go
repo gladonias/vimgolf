@@ -22,7 +22,11 @@ type Config struct {
 }
 
 func Dir() string {
-	home, _ := os.UserHomeDir()
+	home, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: cannot determine home directory: %v\n", err)
+		os.Exit(1)
+	}
 	return filepath.Join(home, dirName)
 }
 

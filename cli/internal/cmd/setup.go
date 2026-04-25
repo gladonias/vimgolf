@@ -33,7 +33,7 @@ func runSetup() error {
 
 	keyPrompt := "\nPaste your VimGolf key:"
 	if existing != nil && existing.Key != "" {
-		keyPrompt = fmt.Sprintf("\nPaste your VimGolf key (Enter to keep current):")
+		keyPrompt = "\nPaste your VimGolf key (Enter to keep current):"
 	}
 
 	key, err := ui.Ask(keyPrompt)
