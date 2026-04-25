@@ -2,6 +2,7 @@ package leaderboard
 
 import (
 	"fmt"
+	"html"
 	"io"
 	"net/http"
 	"regexp"
@@ -45,6 +46,12 @@ var (
 	titleRe = regexp.MustCompile(
 		`<h3><b>(.+?)</b></h3>`,
 	)
+	bestScoreRe = regexp.MustCompile(
+		`<b>Best score:</b>\s*(\d+)`,
+	)
+	rankRe = regexp.MustCompile(
+		`<b>Rank:</b>\s*#(\d+)`,
+	)
 )
 
 func Fetch(challengeID string, username string) (*Result, error) {
@@ -70,21 +77,21 @@ func Fetch(challengeID string, username string) (*Result, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response: %w", err)
 	}
-	html := string(body)
+	page := string(body)
 
 	result := &Result{}
 
-	if m := titleRe.FindStringSubmatch(html); len(m) > 1 {
-		result.Stats.Title = m[1]
+	if m := titleRe.FindStringSubmatch(page); len(m) > 1 {
+		result.Stats.Title = html.UnescapeString(m[1])
 	}
 
-	statMatches := statsRe.FindAllStringSubmatch(html, 2)
+	statMatches := statsRe.FindAllStringSubmatch(page, 2)
 	if len(statMatches) >= 2 {
 		result.Stats.Golfers, _ = strconv.Atoi(statMatches[0][1])
 		result.Stats.Entries, _ = strconv.Atoi(statMatches[1][1])
 	}
 
-	entryMatches := entryRe.FindAllStringSubmatch(html, -1)
+	entryMatches := entryRe.FindAllStringSubmatch(page, -1)
 
 	for _, m := range entryMatches {
 		score, _ := strconv.Atoi(m[1])
@@ -92,7 +99,7 @@ func Fetch(challengeID string, username string) (*Result, error) {
 
 		entry := Entry{
 			Rank:     rank,
-			Name:     strings.TrimSpace(m[3]),
+			Name:     html.UnescapeString(strings.TrimSpace(m[3])),
 			Username: m[4],
 			Score:    score,
 		}
@@ -137,24 +144,17 @@ func FetchUserEntry(challengeID, username string) (*Entry, error) {
 	if err != nil {
 		return nil, err
 	}
-	html := string(body)
-
-	bestScoreRe := regexp.MustCompile(
-		`<b>Best score:</b>\s*(\d+)`,
-	)
-	rankRe := regexp.MustCompile(
-		`<b>Rank:</b>\s*#(\d+)`,
-	)
+	page := string(body)
 
 	entry := &Entry{Username: username}
 
-	if m := bestScoreRe.FindStringSubmatch(html); len(m) > 1 {
+	if m := bestScoreRe.FindStringSubmatch(page); len(m) > 1 {
 		entry.Score, _ = strconv.Atoi(m[1])
 	} else {
 		return nil, nil
 	}
 
-	if m := rankRe.FindStringSubmatch(html); len(m) > 1 {
+	if m := rankRe.FindStringSubmatch(page); len(m) > 1 {
 		entry.Rank, _ = strconv.Atoi(m[1])
 	}
 

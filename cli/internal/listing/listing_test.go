@@ -152,6 +152,32 @@ func TestFetchAllNoResults(t *testing.T) {
 	}
 }
 
+func TestFetchPageHTMLEntities(t *testing.T) {
+	raw := `<html><h5 class="challenge">
+  <a href="/challenges/ent1">It&#39;s a &amp; test &lt;challenge&gt;</a> - 42 entries
+</h5></html>`
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(raw))
+	}))
+	defer server.Close()
+
+	os.Setenv("GOLFHOST", server.URL)
+	defer os.Unsetenv("GOLFHOST")
+
+	result, _, err := FetchPage(1)
+	if err != nil {
+		t.Fatalf("FetchPage() error: %v", err)
+	}
+	if len(result) != 1 {
+		t.Fatalf("expected 1 challenge, got %d", len(result))
+	}
+	want := "It's a & test <challenge>"
+	if result[0].Title != want {
+		t.Errorf("Title = %q, want %q", result[0].Title, want)
+	}
+}
+
 func TestFetchPage404(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)

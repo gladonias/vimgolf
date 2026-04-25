@@ -2,6 +2,7 @@ package listing
 
 import (
 	"fmt"
+	"html"
 	"io"
 	"net/http"
 	"regexp"
@@ -51,20 +52,20 @@ func FetchPage(page int) (challenges []Challenge, totalPages int, err error) {
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to read response: %w", err)
 	}
-	html := string(body)
+	pageHTML := string(body)
 
-	matches := challengeRe.FindAllStringSubmatch(html, -1)
+	matches := challengeRe.FindAllStringSubmatch(pageHTML, -1)
 	for _, m := range matches {
 		entries, _ := strconv.Atoi(m[3])
 		challenges = append(challenges, Challenge{
 			ID:      m[1],
-			Title:   m[2],
+			Title:   html.UnescapeString(m[2]),
 			Entries: entries,
 		})
 	}
 
 	totalPages = 1
-	if m := lastPageRe.FindStringSubmatch(html); len(m) > 1 {
+	if m := lastPageRe.FindStringSubmatch(pageHTML); len(m) > 1 {
 		totalPages, _ = strconv.Atoi(m[1])
 	}
 

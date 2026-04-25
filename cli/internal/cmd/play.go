@@ -178,15 +178,24 @@ func upload(ch *challenge.Challenge) bool {
 
 	var body bytes.Buffer
 	writer := multipart.NewWriter(&body)
-	writer.WriteField("challenge_id", ch.ID)
-	writer.WriteField("apikey", cfg.Key)
+	if err := writer.WriteField("challenge_id", ch.ID); err != nil {
+		ui.Error(fmt.Sprintf("Upload failed: %v", err))
+		return false
+	}
+	if err := writer.WriteField("apikey", cfg.Key); err != nil {
+		ui.Error(fmt.Sprintf("Upload failed: %v", err))
+		return false
+	}
 
 	part, err := writer.CreateFormField("entry")
 	if err != nil {
 		ui.Error(fmt.Sprintf("Upload failed: %v", err))
 		return false
 	}
-	part.Write(logData)
+	if _, err := part.Write(logData); err != nil {
+		ui.Error(fmt.Sprintf("Upload failed: %v", err))
+		return false
+	}
 	writer.Close()
 
 	uploadURL := fmt.Sprintf("%s/entry.json", config.Host())
