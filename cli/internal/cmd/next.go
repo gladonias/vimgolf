@@ -11,18 +11,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var nextReset bool
+
 var nextCmd = &cobra.Command{
 	Use:   "next",
 	Short: "Play challenges sequentially from oldest to newest",
 	Long: `Play through VimGolf challenges in order, from oldest to newest.
 Each challenge is repeated until you match the best score on the leaderboard.
-Once beaten, the next challenge in sequence is selected.`,
+Once beaten, the next challenge in sequence is selected.
+Use --reset to start over from the oldest challenge.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runNext()
 	},
 }
 
 func init() {
+	nextCmd.Flags().BoolVar(&nextReset, "reset", false,
+		"restart from the oldest challenge")
 	rootCmd.AddCommand(nextCmd)
 }
 
@@ -33,6 +38,11 @@ func runNext() error {
 	}
 	if cfg.Username == "" {
 		return fmt.Errorf("username required — run 'vimgolf setup' to set it")
+	}
+
+	if nextReset {
+		ui.Warn("Resetting progress...")
+		return advanceNext("")
 	}
 
 	state, _ := config.LoadNextState()
