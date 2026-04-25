@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.1] - 2026-04-25
+
+### Fixed
+- Check all multipart write errors during upload instead of silently discarding them.
+- Move `bestScoreRe` and `rankRe` to package-level vars (compiled once, not on every call).
+- Decode HTML entities in challenge titles and player names (e.g., `&#39;` now renders as `'`).
+- Exit with a clear error if the home directory cannot be determined.
+- Trim whitespace from `GOLFVIM`/`GOLFSHOWDIFF` env vars to prevent panic on whitespace-only values.
+- Clean up orphaned files on partial challenge download failure.
+
+### Added
+- `--reset` flag for `next` command to restart from the oldest challenge.
+- Tests for the `upload` function in the cmd package (4 new tests, 39 total).
+
+### Changed
+- Removed unnecessary `fmt.Sprintf` wrappers on string literals.
+
 ## [0.3.0] - 2026-04-25
 
 ### Added

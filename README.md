@@ -45,6 +45,9 @@ vimgolf put --min-entries 300
 # Repeats the current challenge until you match the #1 score, then advances
 vimgolf next
 
+# Restart the sequential queue from the oldest challenge
+vimgolf next --reset
+
 # Play a local challenge (no upload)
 vimgolf local <input-file> <output-file>
 
