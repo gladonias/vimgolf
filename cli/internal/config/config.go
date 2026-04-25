@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	DefaultHost = "https://www.vimgolf.com"
-	dirName     = ".vimgolf"
-	configFile  = "config.yaml"
+	DefaultHost   = "https://www.vimgolf.com"
+	dirName       = ".vimgolf"
+	configFile    = "config.yaml"
+	nextStateFile = "next.yaml"
 )
 
 type Config struct {
@@ -68,6 +69,33 @@ func Save(cfg *Config) error {
 	}
 
 	return os.WriteFile(filepath.Join(Dir(), configFile), data, 0o644)
+}
+
+type NextState struct {
+	ChallengeID string `yaml:"challenge_id"`
+}
+
+func LoadNextState() (*NextState, error) {
+	data, err := os.ReadFile(filepath.Join(Dir(), nextStateFile))
+	if err != nil {
+		return nil, err
+	}
+	var state NextState
+	if err := yaml.Unmarshal(data, &state); err != nil {
+		return nil, err
+	}
+	return &state, nil
+}
+
+func SaveNextState(state *NextState) error {
+	if err := os.MkdirAll(Dir(), 0o755); err != nil {
+		return fmt.Errorf("failed to create config directory: %w", err)
+	}
+	data, err := yaml.Marshal(state)
+	if err != nil {
+		return fmt.Errorf("failed to marshal next state: %w", err)
+	}
+	return os.WriteFile(filepath.Join(Dir(), nextStateFile), data, 0o644)
 }
 
 var keyPattern = regexp.MustCompile(`^[a-zA-Z0-9_]{32}$`)

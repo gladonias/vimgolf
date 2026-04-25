@@ -12,6 +12,7 @@ When you launch a challenge from the command line, it will be downloaded from th
 
 The Go CLI is a single static binary with no runtime dependencies.
 It is fully compatible with the vimgolf.com server (protocol version 0.5.0).
+The Go port was developed with the assistance of an AI coding assistant ([Claude Code](https://claude.ai/claude-code)).
 
 ### Install
 
@@ -40,6 +41,10 @@ vimgolf put
 # Play a random unplayed challenge with at least 300 entries
 vimgolf put --min-entries 300
 
+# Play challenges sequentially from oldest to newest
+# Repeats the current challenge until you match the #1 score, then advances
+vimgolf next
+
 # Play a local challenge (no upload)
 vimgolf local <input-file> <output-file>
 
@@ -62,6 +67,9 @@ vimgolf version
 | `GOLFDEBUG` | (unset) | Enable debug output |
 
 ## Ruby CLI (legacy)
+
+The Ruby CLI is maintained in the [original VimGolf repository](https://github.com/igrigorik/vimgolf).
+See that repo for the latest Ruby-specific updates.
 
 ```bash
 gem install vimgolf

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0] - 2026-04-25
+
+### Added
+- `vimgolf next` command: play challenges sequentially from oldest to newest, repeating each until you match the #1 score.
+- Persistent progress tracking for `next` via `~/.vimgolf/next.yaml`.
+- `NextState` load/save helpers in the config package.
+
+### Changed
+- `vimgolf setup` now preserves existing key/username when re-running (press Enter to keep current values).
+- Setup username prompt clarifies it should be the @handle shown on vimgolf.com after sign-in.
+- Updated README with `next` command docs, upstream Ruby repo link, and AI assistant attribution.
+
 ## [0.2.0] - 2026-04-25
 
 ### Added
