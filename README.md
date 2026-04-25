@@ -34,6 +34,12 @@ vimgolf setup
 # Play a challenge
 vimgolf put <challenge-id>
 
+# Play a random unplayed challenge (min 100 entries by default)
+vimgolf put
+
+# Play a random unplayed challenge with at least 300 entries
+vimgolf put --min-entries 300
+
 # Play a local challenge (no upload)
 vimgolf local <input-file> <output-file>
 

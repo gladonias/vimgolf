@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0] - 2026-04-25
+
+### Added
+- Random challenge selection: `vimgolf put` with no arguments picks a random unplayed challenge.
+- `--min-entries` flag for `put` command to filter challenges by minimum entry count (default: 100).
+- New `listing` package to scrape challenge listings from vimgolf.com with pagination support.
+- Tests for the listing package (8 new tests, 34 total).
+
+### Changed
+- `put` command now accepts 0 or 1 arguments (was exactly 1).
+- Exported `FetchUserEntry` from the leaderboard package for reuse.
+
 ## [0.1.3] - 2026-04-24
 
 ### Added

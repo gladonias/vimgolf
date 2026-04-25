@@ -105,7 +105,7 @@ func Fetch(challengeID string, username string) (*Result, error) {
 	}
 
 	if username != "" && result.UserEntry == nil {
-		userEntry, err := fetchUserEntry(challengeID, username)
+		userEntry, err := FetchUserEntry(challengeID, username)
 		if err == nil && userEntry != nil {
 			result.UserEntry = userEntry
 		}
@@ -114,7 +114,7 @@ func Fetch(challengeID string, username string) (*Result, error) {
 	return result, nil
 }
 
-func fetchUserEntry(challengeID, username string) (*Entry, error) {
+func FetchUserEntry(challengeID, username string) (*Entry, error) {
 	url := fmt.Sprintf("%s/challenges/%s/user/%s", config.Host(), challengeID, username)
 
 	req, err := http.NewRequest("GET", url, nil)
